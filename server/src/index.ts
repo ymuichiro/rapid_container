@@ -18,6 +18,4 @@ app.post("/api/generate", (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("start express server...");
-});
+app.listen(3000, () => { });
