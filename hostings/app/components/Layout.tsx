@@ -10,7 +10,6 @@ import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 import { makeStyles, createStyles } from "@material-ui/core/styles";
-import firebase from "firebase";
 import { useRouter } from "next/router";
 import { useAppSelector, useAppDispatch, Authenticaters } from "../stores";
 
@@ -61,7 +60,6 @@ const Layout: React.FC = (props) => {
   const closeHundle = () => setAnchor(false);
   const logOutHundle = () => {
     dispatch(Authenticaters.updateLoginStatus(false));
-    firebase.auth().signOut();
     router.push(process.env.NEXT_PUBLIC_PATH_SIGNIN);
   };
   const handleSiteTitleClick = () => {

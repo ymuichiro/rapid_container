@@ -30,7 +30,7 @@ export const ListItemCodeResult = (props: ListItemCodeResultArgs) => {
   useEffect(() => {
     let flag = true;
     if (!mounted) {
-      fetch(`${location.protocol}//${document.domain}:3000/api/generate`, {
+      fetch(`https://${document.domain}/api/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
