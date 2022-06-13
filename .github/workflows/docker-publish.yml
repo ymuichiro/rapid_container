@@ -20,4 +20,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ymuichiro/rapidjs:latest
+          tags: ghcr.io/ymuichiro/rapidjs:latest
