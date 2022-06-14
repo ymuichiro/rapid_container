@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://rapidgs.frinker.app
-
-# Sitemaps
-Sitemap: https://rapidgs.frinker.app/sitemap.xml
