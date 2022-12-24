@@ -1,23 +1,53 @@
-name: Publish Docker image
-on: push
+name: Docker
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master", "main"]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: ["master", "main"]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  main:
-    name: Push Docker image to Github Container Registry
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login
-        run: echo $CR_PAT | docker login ghcr.io -u ${OWNER,,} --password-stdin
-        env:
-          CR_PAT: ${{ secrets.GITHUB_TOKEN }}
-          OWNER: ${{ github.repository_owner }}
-      - name: Push to GitHub Container Registry
-        uses: docker/build-push-action@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2.2.1
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2.1.0
         with:
-          push: true
-          tags: ghcr.io/ymuichiro/rapidjs:latest
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 私は主にnode.jsで開発をしているのでpackage.jsonから取得していますが、ここは消しても問題ありません
+      # 消した場合は最後の処理のバージョン取得方法を任意の方法へ書き換え下さい
+      - name: Get version in package.json
+        id: get-package-version
+        run: echo VERSION=$(cat package.json | jq -r '.version') >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image (latest)
+        uses: docker/build-push-action@v3.2.0
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get-package-version.outputs.VERSION }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
